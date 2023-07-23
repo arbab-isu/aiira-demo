@@ -27,7 +27,8 @@ APP_PATH = str(pathlib.Path(__file__).parent.resolve())
 df = pd.read_csv(os.path.join(APP_PATH, os.path.join("data", "transformed_data.csv")))
 
 params = list(df)
-max_length = 60#len(df)
+max_length = len(df)#60
+n_interval_stage_variable_value=50
 live_vew_off=False
 suffix_row = "_row"
 suffix_button_id = "_button"
@@ -757,7 +758,7 @@ app.layout = html.Div(
             ],
         ),
         dcc.Store(id="value-setter-store", data=init_value_setter_store()),
-        dcc.Store(id="n-interval-stage", data=50),
+        dcc.Store(id="n-interval-stage", data=n_interval_stage_variable_value),
         # generate_modal(),
     ],
 )
