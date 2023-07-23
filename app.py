@@ -28,7 +28,7 @@ df = pd.read_csv(os.path.join(APP_PATH, os.path.join("data", "transformed_data.c
 
 params = list(df)
 max_length = 60#len(df)
-
+live_vew_off=False
 suffix_row = "_row"
 suffix_button_id = "_button"
 suffix_sparkline_graph = "_sparkline_graph"
@@ -97,8 +97,8 @@ def init_df():
         stats = data.describe()
 
         std = stats["std"].tolist()
-        ucl = (stats["mean"] + 2 * stats["std"]).tolist()
-        lcl = (stats["mean"] - 2 * stats["std"]).tolist()
+        ucl = (stats["mean"] + 1.5 * stats["std"]).tolist()
+        lcl = (stats["mean"] - 1.5 * stats["std"]).tolist()
         usl = (stats["mean"] + stats["std"]).tolist()
         lsl = (stats["mean"] - stats["std"]).tolist()
 
@@ -350,7 +350,7 @@ def generate_metric_row_helper(stopped_interval, index):
                     }
                 },
                 showCurrentValue=False,
-                max=15,
+                max=20,
                 value=0,
             ),
         },
@@ -710,7 +710,7 @@ app.layout = html.Div(
             id="interval-component",
             interval=2 * 1000,  # in milliseconds
             n_intervals=50,  # start at batch 50, TODO: This is not working as intended
-            disabled=True,
+            disabled=live_vew_off,
         ),
 
         html.Div(
