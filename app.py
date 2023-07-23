@@ -988,6 +988,7 @@ def create_callback(param):
 
 for param in params[1:]:
     update_param_row_function = create_callback(param)
+    # This is decorator area
     app.callback(
         output=[
             Output(param + suffix_count, "children"),
@@ -998,7 +999,7 @@ for param in params[1:]:
         ],
         inputs=[Input("interval-component", "n_intervals")],
         state=[State("value-setter-store", "data")],
-    )(update_param_row_function)
+    )(update_param_row_function) # and this is the created function coming from up side 
 
 
 #  ======= button to choose/update figure based on click ============
