@@ -666,7 +666,7 @@ def update_sparkline(interval, param):
         x_new = x_array[:total_count][-1]
         y_new = y_array[:total_count][-1]
 
-    return dict(x=[[x_new]], y=[[y_new]]), [0]
+    return dict(x=[[x_new]], y=[[y_new]]), [0], 50
 # The above function is to update the sparkline. The sparkline is the line that shows the live SPC chart.
 
 def update_count(interval, col, data):
