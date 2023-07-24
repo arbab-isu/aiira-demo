@@ -24,13 +24,13 @@ app.config["suppress_callback_exceptions"] = True
 
 APP_PATH = str(pathlib.Path(__file__).parent.resolve())
 # df = pd.read_csv(os.path.join(APP_PATH, os.path.join("data", "spc_data.csv")))
-df = pd.read_csv(os.path.join(APP_PATH, os.path.join("data", "transformed_data.csv")))
+df = pd.read_csv(os.path.join(APP_PATH, os.path.join("data", "cleaned_merged_hourly_data.csv")))
 
 params = list(df)
 max_length = len(df)#60
 n_interval_stage_ie_stopped_interval=50
-crop_model_output_attribute="Temperature"
-points_to_plot_in_sparkline=50
+crop_model_output_attribute="M_Accum"
+points_to_plot_in_sparkline=25
 live_vew_off=False
 suffix_row = "_row"
 suffix_button_id = "_button"
@@ -435,7 +435,7 @@ def build_chart_panel():
                                 "x": [],
                                 "y": [],
                                 "mode": "lines+markers",
-                                "name": params[2],
+                                "name": crop_model_output_attribute, #defaults params[1]
                             }
                         ],
                         "layout": {
@@ -714,52 +714,57 @@ def update_count(interval, col, data):
 
     return str(total_count + 1), ooc_percentage_str, ooc_grad_val, color
 # The above function is to update the count. The count is the number of out of control data.
-
+scaler=1.3
 app.layout = html.Div(
     id="big-app-container",
     children=[
         build_banner(),
         dcc.Interval(
             id="interval-component",
-            interval=1 * 1000,  # in milliseconds
+            interval=2 * 1000,  # in milliseconds
             n_intervals=0,  # start at batch 50, TODO: This is not working as intended
             disabled=live_vew_off,
         ),
 
-        html.Div(
-            className='video-container',
+html.Div(
+    className='video-container',
+    style={'display': 'flex', 'justify-content': 'center', 'align-items': 'center'},
+    children=[
+        html.Div(  # Group first video and its title
+            style={'width': '45%', 'padding': '0 1% 0 0', 'display': 'flex', 'flex-direction': 'column', 'align-items': 'center'},
             children=[
-                html.Div(  # Group first video and its title
-                    style={'width': '49%', 'float': 'left', 'padding': '0 1% 0 0'},
-                    children=[
-                        dash_player.DashPlayer(
-                            id='video-player-1',
-                            url='https://youtu.be/7LXRnHH4hTA?controls=0&showinfo=0&rel=0&modestbranding',  # Replace with your YouTube video url
-                            controls=False,
-                            loop=True,
-                            playbackRate=2,
-                            playing=True,
-                            style={'width': '100%'}
-                        ),
-                        html.Div("Reconstructed Pointcloud", style={'text-align': 'center'})  # Title for the first video
-                    ]
+                dash_player.DashPlayer(
+                    id='video-player-1',
+                    url='https://youtu.be/7LXRnHH4hTA?controls=0&showinfo=0&rel=0&modestbranding',  # Replace with your YouTube video url
+                    controls=False,
+                    loop=True,
+                    playbackRate=2,
+                    playing=True,
+                    width=640*scaler,
+                    height=360*scaler,
+                    style={'width': '100%'}
                 ),
-                html.Div(  # Group second video and its title
-                    style={'width': '49%', 'float': 'right', 'padding': '0 0 0 1%'},
-                    children=[
-                        dash_player.DashPlayer(
-                            id='video-player-2',
-                            url='https://www.youtube.com/watch?v=0--5KP3jqzk?controls=0&showinfo=0&rel=0&modestbranding=1',  # Replace with your second YouTube video url
-                            controls=False,
-                            loop=True,
-                            playing=True,
-                            style={'width': '100%'}
-                        ),
-                        html.Div("Live Video", style={'text-align': 'center'})  # Title for the second video
-                    ]
-                ),
+                html.Div("Reconstructed Pointcloud")  # Title for the first video
             ]
         ),
+        html.Div(  # Group second video and its title
+            style={'width': '45%', 'padding': '0 0 0 1%', 'display': 'flex', 'flex-direction': 'column', 'align-items': 'center'},
+            children=[
+                dash_player.DashPlayer(
+                    id='video-player-2',
+                    url='https://youtube.com/live/-ku14wG_PWs?feature=share?controls=0&showinfo=0&rel=0&modestbranding=1',  # Replace with your second YouTube video url
+                    controls=False,
+                    loop=True,
+                    playing=True,
+                    width=640*scaler,
+                    height=360*scaler,
+                    style={'width': '100%'}
+                ),
+                html.Div("Live Video")  # Title for the second video
+            ]
+        ),
+    ]
+),
 
         html.Div(
             id="app-container",
