@@ -475,22 +475,22 @@ def generate_graph(interval, specs_dict, col):
     elif interval > 0:
         total_count = interval
 
-    ooc_trace = {
-        "x": [],
-        "y": [],
-        "name": "Out of Control",
-        "mode": "markers",
-        "marker": dict(color="rgba(210, 77, 87, 0.7)", symbol="square", size=11),
-    }
+    # ooc_trace = {
+    #     "x": [],
+    #     "y": [],
+    #     "name": "Out of Control",
+    #     "mode": "markers",
+    #     "marker": dict(color="rgba(210, 77, 87, 0.7)", symbol="square", size=11),
+    # }
 
-    for index, data in enumerate(y_array[:total_count]):
-        if data >= ucl or data <= lcl:
-            ooc_trace["x"].append(index + 1)
-            ooc_trace["y"].append(data)
+    # for index, data in enumerate(y_array[total_count-points_to_plot_in_sparkline:total_count]):
+    #     if data >= ucl or data <= lcl:
+    #         ooc_trace["x"].append(index + 1)
+    #         ooc_trace["y"].append(data)
 
     histo_trace = {
-        "x": x_array[:total_count],
-        "y": y_array[:total_count],
+        "x": x_array[total_count-points_to_plot_in_sparkline:total_count],
+        "y": y_array[total_count-points_to_plot_in_sparkline:total_count],
         "type": "histogram",
         "orientation": "h",
         "name": "Distribution",
@@ -502,13 +502,13 @@ def generate_graph(interval, specs_dict, col):
     fig = {
         "data": [
             {
-                "x": x_array[:total_count],
-                "y": y_array[:total_count],
+                "x": x_array[total_count-points_to_plot_in_sparkline:total_count],
+                "y": y_array[total_count-points_to_plot_in_sparkline:total_count],
                 "mode": "lines+markers",
                 "name": col,
                 "line": {"color": "#f4d44d"},
             },
-            ooc_trace,
+            # ooc_trace,
             histo_trace,
         ]
     }
@@ -588,13 +588,13 @@ def generate_graph(interval, specs_dict, col):
             },
         ],
         shapes=[
-            {
+                {
                 "type": "line",
                 "xref": "x",
                 "yref": "y",
-                "x0": 1,
+                "x0": x_array[total_count-points_to_plot_in_sparkline],
                 "y0": usl,
-                "x1": len_figure + 1,
+                "x1": x_array[total_count-1],
                 "y1": usl,
                 "line": {"color": "#91dfd2", "width": 1, "dash": "dot"},
             },
@@ -602,9 +602,9 @@ def generate_graph(interval, specs_dict, col):
                 "type": "line",
                 "xref": "x",
                 "yref": "y",
-                "x0": 1,
+                "x0": x_array[total_count-points_to_plot_in_sparkline],
                 "y0": lsl,
-                "x1": len_figure + 1,
+                "x1": x_array[total_count-1],
                 "y1": lsl,
                 "line": {"color": "#91dfd2", "width": 1, "dash": "dot"},
             },
@@ -612,9 +612,9 @@ def generate_graph(interval, specs_dict, col):
                 "type": "line",
                 "xref": "x",
                 "yref": "y",
-                "x0": 1,
+                "x0": x_array[total_count-points_to_plot_in_sparkline],
                 "y0": ucl,
-                "x1": len_figure + 1,
+                "x1": x_array[total_count-1],
                 "y1": ucl,
                 "line": {"color": "rgb(255,127,80)", "width": 1, "dash": "dot"},
             },
@@ -622,9 +622,9 @@ def generate_graph(interval, specs_dict, col):
                 "type": "line",
                 "xref": "x",
                 "yref": "y",
-                "x0": 1,
+                "x0": x_array[total_count-points_to_plot_in_sparkline],
                 "y0": mean,
-                "x1": len_figure + 1,
+                "x1": x_array[total_count-1],
                 "y1": mean,
                 "line": {"color": "rgb(255,127,80)", "width": 2},
             },
@@ -632,9 +632,9 @@ def generate_graph(interval, specs_dict, col):
                 "type": "line",
                 "xref": "x",
                 "yref": "y",
-                "x0": 1,
+                "x0": x_array[total_count-points_to_plot_in_sparkline],
                 "y0": lcl,
-                "x1": len_figure + 1,
+                "x1": x_array[total_count-1],
                 "y1": lcl,
                 "line": {"color": "rgb(255,127,80)", "width": 1, "dash": "dot"},
             },
@@ -653,7 +653,9 @@ def generate_graph(interval, specs_dict, col):
             "titlefont": {"color": "darkgray"},
         },
     )
-
+    xmin = min(x_array[total_count-points_to_plot_in_sparkline:total_count]) 
+    xmax = max(x_array[total_count-points_to_plot_in_sparkline:total_count])
+    fig["layout"]["xaxis"]["range"] = [xmin+10, xmax]
     return fig
 # The above function is to generate the graph. The graph is the graph that shows the live SPC chart.
 
