@@ -28,7 +28,9 @@ df = pd.read_csv(os.path.join(APP_PATH, os.path.join("data", "transformed_data.c
 
 params = list(df)
 max_length = len(df)#60
-n_interval_stage_variable_value=50
+n_interval_stage_ie_stopped_interval=50
+crop_model_output_attribute="Temperature"
+points_to_plot_in_sparkline=50
 live_vew_off=False
 suffix_row = "_row"
 suffix_button_id = "_button"
@@ -277,6 +279,10 @@ def generate_metric_row_helper(stopped_interval, index):
     ooc_percentage_id = item + suffix_ooc_n
     ooc_graph_id = item + suffix_ooc_g
     indicator_id = item + suffix_indicator
+    default_color = "#f4d44d"
+    alternate_color = "#f45060"
+    #if the item is "Temperature" then chosen color is default color, else alternate color
+    chosen_color = alternate_color if item == crop_model_output_attribute  else default_color
 
     return generate_metric_row(
         div_id,
@@ -313,7 +319,7 @@ def generate_metric_row_helper(stopped_interval, index):
                                 "y": state_dict[item]["data"][:stopped_interval],
                                 "mode": "lines+markers",
                                 "name": item,
-                                "line": {"color": "#f4d44d"},
+                                "line": {"color": chosen_color},
                             }
                         ],
                         "layout": {
@@ -429,7 +435,7 @@ def build_chart_panel():
                                 "x": [],
                                 "y": [],
                                 "mode": "lines+markers",
-                                "name": params[1],
+                                "name": params[2],
                             }
                         ],
                         "layout": {
@@ -659,14 +665,18 @@ def update_sparkline(interval, param):
         x_new = y_new = None
 
     else:
-        if interval >= max_length:
+        if interval >= (max_length): #previously: interval >= max_length:
             total_count = max_length
         else:
             total_count = interval
+
         x_new = x_array[:total_count][-1]
         y_new = y_array[:total_count][-1]
-
-    return dict(x=[[x_new]], y=[[y_new]]), [0], 50
+        #Handling the case, when the number of points left are less than the points_to_plot_in_sparkline
+        if (total_count) >= max_length:
+            #Then update nothing
+            return dict(x=[[x_new]], y=[[y_new]]), [], points_to_plot_in_sparkline
+    return dict(x=[[x_new]], y=[[y_new]]), [0], points_to_plot_in_sparkline
 # The above function is to update the sparkline. The sparkline is the line that shows the live SPC chart.
 
 def update_count(interval, col, data):
@@ -709,8 +719,8 @@ app.layout = html.Div(
         build_banner(),
         dcc.Interval(
             id="interval-component",
-            interval=2 * 1000,  # in milliseconds
-            n_intervals=50,  # start at batch 50, TODO: This is not working as intended
+            interval=1 * 1000,  # in milliseconds
+            n_intervals=0,  # start at batch 50, TODO: This is not working as intended
             disabled=live_vew_off,
         ),
 
@@ -758,7 +768,7 @@ app.layout = html.Div(
             ],
         ),
         dcc.Store(id="value-setter-store", data=init_value_setter_store()),
-        dcc.Store(id="n-interval-stage", data=n_interval_stage_variable_value),
+        dcc.Store(id="n-interval-stage", data=n_interval_stage_ie_stopped_interval),
         # generate_modal(),
     ],
 )

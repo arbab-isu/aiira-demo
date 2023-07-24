@@ -29,7 +29,7 @@ df = df[[ 'Temperature', 'Dew Point', 'Humidity', 'Wind Speed', 'Wind Gust', 'Pr
 df.columns = df.columns.str.replace('.', '')
 
 #duplicate rows to make the data larger by 5 times
-df = pd.concat([df]*5, ignore_index=True)
+df = pd.concat([df]*10, ignore_index=True)
 
 # Generate a "Batch" column, starting from 1
 df['Batch'] = range(1, len(df) + 1)
