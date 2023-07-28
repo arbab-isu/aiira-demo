@@ -33,7 +33,7 @@ df = pd.read_csv(os.path.join(APP_PATH, os.path.join("data", "cleaned_merged_hou
 params = list(df)
 max_length = len(df)#60
 n_interval_stage_ie_stopped_interval=50
-crop_model_output_attribute="M_Accum"
+crop_model_output_attribute="BioMass"
 points_to_plot_in_sparkline=25
 live_vew_off=True
 suffix_row = "_row"
@@ -520,18 +520,6 @@ def generate_graph(interval, specs_dict, col):
     elif interval > 0:
         total_count = interval
 
-    # ooc_trace = {
-    #     "x": [],
-    #     "y": [],
-    #     "name": "Out of Control",
-    #     "mode": "markers",
-    #     "marker": dict(color="rgba(210, 77, 87, 0.7)", symbol="square", size=11),
-    # }
-
-    # for index, data in enumerate(y_array[total_count-points_to_plot_in_sparkline:total_count]):
-    #     if data >= ucl or data <= lcl:
-    #         ooc_trace["x"].append(index + 1)
-    #         ooc_trace["y"].append(data)
 
     histo_trace = {
         "x": x_array[total_count-points_to_plot_in_sparkline:total_count],
@@ -543,17 +531,26 @@ def generate_graph(interval, specs_dict, col):
         "yaxis": "y2",
         "marker": {"color": "#f4d44d"},
     }
-
+    n_predictions = 5 
     fig = {
         "data": [
             {
-                "x": x_array[total_count-points_to_plot_in_sparkline:total_count],
-                "y": y_array[total_count-points_to_plot_in_sparkline:total_count],
+                # Actual data trace
+                "x": x_array[total_count-points_to_plot_in_sparkline:total_count-n_predictions],
+                "y": y_array[total_count-points_to_plot_in_sparkline:total_count-n_predictions],
                 "mode": "lines+markers",
-                "name": col,
-                "line": {"color": "#f4d44d"},
+                "name": f"{col} Actual",
+                "line": {"color": "#f4d44d", "width": 3},
             },
-            # ooc_trace,
+            {
+                # Predicted data trace
+                "x": x_array[total_count-n_predictions-1:total_count],
+                "y": y_array[total_count-n_predictions-1:total_count],
+                "mode": "lines+markers",
+                "name": f"{col} Prediction",
+                "line": {"color": "#ff0000", "dash": "dot", "width": 3},  # Red color, Dotted line
+            },
+            #ooc_trace,
             histo_trace,
         ]
     }
@@ -671,7 +668,7 @@ def generate_graph(interval, specs_dict, col):
                 "y0": mean,
                 "x1": x_array[total_count-1],
                 "y1": mean,
-                "line": {"color": "rgb(255,127,80)", "width": 2},
+                "line": {"color": "rgb(255,127,80)", "width": 1},
             },
             {
                 "type": "line",
