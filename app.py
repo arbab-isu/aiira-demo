@@ -308,9 +308,9 @@ def generate_metric_list_header():
         {"id": "m_header_1", "children": html.Div("Parameter")},
         {"id": "m_header_2", "children": html.Div("Count")},
         {"id": "m_header_3", "children": html.Div("Sparkline")},
-        {"id": "m_header_4", "children": html.Div("OOC%")},
-        {"id": "m_header_5", "children": html.Div("%OOC")},
-        {"id": "m_header_6", "children": "Pass/Fail"},
+        {"id": "m_header_4", "children": html.Div("Outlier%")},
+        {"id": "m_header_5", "children": html.Div("%Outlier")},
+        {"id": "m_header_6", "children": "Indicator"},
     )
 # The above function is to generate the metric list header. The metric list header is the header of the metric list.
 
