@@ -53,7 +53,7 @@ def build_banner():
             html.Div(
                 id="banner-text",
                 children=[
-                    html.H5("Digital Twin"),
+                    html.H5("Digital Twin Dashboard"),
                     html.H6("AI Institute for Resilient Agriculture"),
                 ],
             ),
@@ -190,39 +190,39 @@ def generate_section_banner(title):
 
 import base64
 
-def parse_image(filename):
+# def parse_image(filename):
 
-    # Open the image file in binary mode, convert it to base64 string
-    with open(filename, "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read()).decode()
+#     # Open the image file in binary mode, convert it to base64 string
+#     with open(filename, "rb") as image_file:
+#         encoded_string = base64.b64encode(image_file.read()).decode()
 
-    # Remove 'data:image/png;base64' from the image string,
-    data = encoded_string.replace('data:image/png;base64,', '')
-    img = Image.open(io.BytesIO(base64.b64decode(data)))
+#     # Remove 'data:image/png;base64' from the image string,
+#     data = encoded_string.replace('data:image/png;base64,', '')
+#     img = Image.open(io.BytesIO(base64.b64decode(data)))
 
-    # Convert the image string to numpy array and create a
-    # Plotly figure
-    fig = px.imshow(np.array(img))
+#     # Convert the image string to numpy array and create a
+#     # Plotly figure
+#     fig = px.imshow(np.array(img))
 
-    # Hide the axes and the tooltips
-    fig.update_layout(
-        plot_bgcolor='white',
-        paper_bgcolor='white',
-        margin=dict(t=20, b=0, l=0, r=0),
-        xaxis=dict(
-            showgrid=False,
-            showticklabels=False,
-            linewidth=0
-        ),
-        yaxis=dict(
-            showgrid=False,
-            showticklabels=False,
-            linewidth=0
-        ),
-        hovermode=False
-    )
+#     # Hide the axes and the tooltips
+#     fig.update_layout(
+#         plot_bgcolor='white',
+#         paper_bgcolor='white',
+#         margin=dict(t=20, b=0, l=0, r=0),
+#         xaxis=dict(
+#             showgrid=False,
+#             showticklabels=False,
+#             linewidth=0
+#         ),
+#         yaxis=dict(
+#             showgrid=False,
+#             showticklabels=False,
+#             linewidth=0
+#         ),
+#         hovermode=False
+#     )
 
-    return fig
+#     return fig
 
 def build_top_panel(stopped_interval):
     return html.Div(
@@ -260,12 +260,12 @@ def build_top_panel(stopped_interval):
                 id="ooc-piechart-outer",
                 className="four columns",
                 children=[
-                    generate_section_banner("% OOC per Parameter"),
+                    generate_section_banner("Schema of the Model for Biomass Prediction"),
                     # dcc.Graph(
                     #     figure=parse_image('/Users/muhammadarbabarshad/Documents/dashboard experiments/dash-app-final/Slide1.png'),
                     #     config={'displayModeBar': True}
                     # ),
-                            html.Img(src='assets/slide1.png', style={'width': '100%', 'height': 'auto'}),
+                            html.Img(src='assets/slide1.png', style={'width': '100%', 'height': '90%', 'object-fit': 'cover'}),
 
                 ],
             ),
@@ -470,7 +470,7 @@ def build_chart_panel():
         id="control-chart-container",
         className="twelve columns",
         children=[
-            generate_section_banner("Live SPC Chart"),
+            generate_section_banner("Biomass Prediction Model"),
             dcc.Graph(
                 id="control-chart-live",
                 figure=go.Figure(
@@ -572,7 +572,7 @@ def generate_graph(interval, specs_dict, col):
         xaxis={
             "zeroline": False,
             "showgrid": False,
-            "title": "Batch Number",
+            "title": "Hour",
             "showline": False,
             "domain": [0, 0.8],
             "titlefont": {"color": "darkgray"},
@@ -701,6 +701,10 @@ def generate_graph(interval, specs_dict, col):
     xmin = min(x_array[total_count-points_to_plot_in_sparkline:total_count]) 
     xmax = max(x_array[total_count-points_to_plot_in_sparkline:total_count])
     fig["layout"]["xaxis"]["range"] = [xmin+10, xmax]
+
+    #increase font size of figure
+    fig["layout"]["font"] = dict(size=18)
+
     return fig
 # The above function is to generate the graph. The graph is the graph that shows the live SPC chart.
 
@@ -780,16 +784,16 @@ html.Div(
             children=[
                 dash_player.DashPlayer(
                     id='video-player-1',
-                    url='https://youtu.be/7LXRnHH4hTA?controls=0&showinfo=0&rel=0&modestbranding',  # Replace with your YouTube video url
+                    url='https://www.youtube.com/watch?v=BvnAz3ylU9s?controls=0&showinfo=0&rel=0&modestbranding',  # Replace with your YouTube video url
                     controls=False,
                     loop=True,
-                    playbackRate=2,
+                    playbackRate=1,
                     playing=True,
                     width=640*scaler,
                     height=360*scaler,
                     style={'width': '100%'}
                 ),
-                html.Div("Reconstructed Pointcloud")  # Title for the first video
+                html.Div("Merging ...")  # Title for the first video
             ]
         ),
         html.Div(  # Group second video and its title
@@ -797,7 +801,7 @@ html.Div(
             children=[
                 dash_player.DashPlayer(
                     id='video-player-2',
-                    url='https://youtube.com/live/-ku14wG_PWs?feature=share?controls=0&showinfo=0&rel=0&modestbranding=1',  # Replace with your second YouTube video url
+                    url='https://youtube.com/live/JWmsTfeszts?controls=0&showinfo=0&rel=0&modestbranding=1',  # Replace with your second YouTube video url
                     controls=False,
                     loop=True,
                     playing=True,
