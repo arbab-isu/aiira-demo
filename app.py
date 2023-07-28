@@ -14,10 +14,10 @@ import dash_player
 
 import pandas as pd
 import numpy as np
-from PIL import Image
+# from PIL import Image
 import io
-import base64
-import plotly.express as px
+# import base64
+# import plotly.express as px
 app = dash.Dash(
     __name__,
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
@@ -402,7 +402,7 @@ def generate_metric_row_helper(stopped_interval, index):
                     }
                 },
                 showCurrentValue=False,
-                max=20,
+                max=30,
                 value=0,
             ),
         },
@@ -751,9 +751,9 @@ def update_count(interval, col, data):
             ooc_grad_val = float(ooc_percentage_f)
 
         # Set indicator theme according to threshold 5%
-        if 0 <= ooc_grad_val <= 5:
+        if 0 <= ooc_grad_val <= 10:
             color = "#92e0d3"
-        elif 5 < ooc_grad_val < 7:
+        elif 10 < ooc_grad_val < 20:
             color = "#f4d44d"
         else:
             color = "#FF0000"
