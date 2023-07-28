@@ -13,7 +13,11 @@ import dash_daq as daq
 import dash_player
 
 import pandas as pd
-
+import numpy as np
+from PIL import Image
+import io
+import base64
+import plotly.express as px
 app = dash.Dash(
     __name__,
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
@@ -31,7 +35,7 @@ max_length = len(df)#60
 n_interval_stage_ie_stopped_interval=50
 crop_model_output_attribute="M_Accum"
 points_to_plot_in_sparkline=25
-live_vew_off=False
+live_vew_off=True
 suffix_row = "_row"
 suffix_button_id = "_button"
 suffix_sparkline_graph = "_sparkline_graph"
@@ -184,6 +188,41 @@ def build_value_setter_line(line_num, label, value, col3):
 def generate_section_banner(title):
     return html.Div(className="section-banner", children=title)
 
+import base64
+
+def parse_image(filename):
+
+    # Open the image file in binary mode, convert it to base64 string
+    with open(filename, "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read()).decode()
+
+    # Remove 'data:image/png;base64' from the image string,
+    data = encoded_string.replace('data:image/png;base64,', '')
+    img = Image.open(io.BytesIO(base64.b64decode(data)))
+
+    # Convert the image string to numpy array and create a
+    # Plotly figure
+    fig = px.imshow(np.array(img))
+
+    # Hide the axes and the tooltips
+    fig.update_layout(
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        margin=dict(t=20, b=0, l=0, r=0),
+        xaxis=dict(
+            showgrid=False,
+            showticklabels=False,
+            linewidth=0
+        ),
+        yaxis=dict(
+            showgrid=False,
+            showticklabels=False,
+            linewidth=0
+        ),
+        hovermode=False
+    )
+
+    return fig
 
 def build_top_panel(stopped_interval):
     return html.Div(
@@ -222,9 +261,15 @@ def build_top_panel(stopped_interval):
                 className="four columns",
                 children=[
                     generate_section_banner("% OOC per Parameter"),
-                    generate_piechart(),
+                    # dcc.Graph(
+                    #     figure=parse_image('/Users/muhammadarbabarshad/Documents/dashboard experiments/dash-app-final/Slide1.png'),
+                    #     config={'displayModeBar': True}
+                    # ),
+                            html.Img(src='assets/slide1.png', style={'width': '100%', 'height': 'auto'}),
+
                 ],
             ),
+
         ],
     )
 # The above function is to build the top panel. The top panel is the panel that contains the metrics summary and the piechart.
@@ -779,14 +824,6 @@ html.Div(
         # generate_modal(),
     ],
 )
-# The above function is to build the app layout. The app layout is the layout of the app. It contains the banner, tabs, and the main app.
-#Additional comments: 
-    # html.Iframe(src="https://player.vimeo.com/video/844828627?controls=0&title=0&byline=0&portrait=0",
-     #         style={"width": "60%", "height": "360px", "border": "0px", "margin": "auto"}),
-                #Another way which also works with youtube videos
-# html.Iframe(src="https://www.youtube.com/embed/DHUnz4dyb54?controls=0&showinfo=0&rel=0&modestbranding=1&autoplay=1",
-#             style={"width": "60%", "height": "360px", "border": "0px", "margin": "auto"}),
-
 
 @app.callback(
     [Output("app-content", "children"), Output("interval-component", "n_intervals")],
@@ -1061,60 +1098,60 @@ def update_control_chart(interval, n1, n2, n3, n4, n5, n6, n7, data, cur_fig):
             return generate_graph(interval, data, curr_id)
 # The above callback and function is to update the control chart. The control chart is the chart that shows the live SPC chart.
 
-# Update piechart
-@app.callback(
-    output=Output("piechart", "figure"),
-    inputs=[Input("interval-component", "n_intervals")],
-    state=[State("value-setter-store", "data")],
-)
-def update_piechart(interval, stored_data):
-    if interval == 0:
-        return {
-            "data": [],
-            "layout": {
-                "font": {"color": "white"},
-                "paper_bgcolor": "rgba(0,0,0,0)",
-                "plot_bgcolor": "rgba(0,0,0,0)",
-            },
-        }
+# # Update piechart
+# @app.callback(
+#     output=Output("piechart", "figure"),
+#     inputs=[Input("interval-component", "n_intervals")],
+#     state=[State("value-setter-store", "data")],
+# )
+# def update_piechart(interval, stored_data):
+#     if interval == 0:
+#         return {
+#             "data": [],
+#             "layout": {
+#                 "font": {"color": "white"},
+#                 "paper_bgcolor": "rgba(0,0,0,0)",
+#                 "plot_bgcolor": "rgba(0,0,0,0)",
+#             },
+#         }
 
-    if interval >= max_length:
-        total_count = max_length - 1
-    else:
-        total_count = interval - 1
+#     if interval >= max_length:
+#         total_count = max_length - 1
+#     else:
+#         total_count = interval - 1
 
-    values = []
-    colors = []
-    for param in params[1:]:
-        ooc_param = (stored_data[param]["ooc"][total_count] * 100) + 1
-        values.append(ooc_param)
-        if ooc_param > 6:
-            colors.append("#f45060")
-        else:
-            colors.append("#91dfd2")
+#     values = []
+#     colors = []
+#     for param in params[1:]:
+#         ooc_param = (stored_data[param]["ooc"][total_count] * 100) + 1
+#         values.append(ooc_param)
+#         if ooc_param > 6:
+#             colors.append("#f45060")
+#         else:
+#             colors.append("#91dfd2")
 
-    new_figure = {
-        "data": [
-            {
-                "labels": params[1:],
-                "values": values,
-                "type": "pie",
-                "marker": {"colors": colors, "line": dict(color="white", width=2)},
-                "hoverinfo": "label",
-                "textinfo": "label",
-            }
-        ],
-        "layout": {
-            "margin": dict(t=20, b=50),
-            "uirevision": True,
-            "font": {"color": "white"},
-            "showlegend": False,
-            "paper_bgcolor": "rgba(0,0,0,0)",
-            "plot_bgcolor": "rgba(0,0,0,0)",
-            "autosize": True,
-        },
-    }
-    return new_figure
+#     new_figure = {
+#         "data": [
+#             {
+#                 "labels": params[1:],
+#                 "values": values,
+#                 "type": "pie",
+#                 "marker": {"colors": colors, "line": dict(color="white", width=2)},
+#                 "hoverinfo": "label",
+#                 "textinfo": "label",
+#             }
+#         ],
+#         "layout": {
+#             "margin": dict(t=20, b=50),
+#             "uirevision": True,
+#             "font": {"color": "white"},
+#             "showlegend": False,
+#             "paper_bgcolor": "rgba(0,0,0,0)",
+#             "plot_bgcolor": "rgba(0,0,0,0)",
+#             "autosize": True,
+#         },
+#     }
+#     return new_figure
 # The above callback and function is to update the piechart. The piechart is the piechart that shows the percentage of out of control data.
 
 # Running the server
